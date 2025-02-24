@@ -1,10 +1,15 @@
+import { ThemeProvider } from '@emotion/react';
+import { theme } from './styles/theme';
 import GlobalStyles from './styles/GlobalStyles';
+import HeroSection from './components/sections/HeroSection';
 
 const App = () => {
   return (
     <>
-      <GlobalStyles />
-      <h1 className="text-2xl text-red-700">Hello React!</h1>
+      <ThemeProvider theme={theme}>
+        <GlobalStyles />
+        <HeroSection />
+      </ThemeProvider>
     </>
   );
 };
