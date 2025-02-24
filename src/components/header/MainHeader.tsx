@@ -9,7 +9,7 @@ interface MainHeaderProps {
   children: React.ReactNode;
 }
 
-const Heading = (theme: Theme) => css`
+const MainHeadingStyle = (theme: Theme) => css`
   position: relative;
   font-size: 48px;
   font-weight: 700;
@@ -81,7 +81,7 @@ const MainHeader = forwardRef<HTMLHeadingElement, MainHeaderProps>(
       .join(' ');
 
     return (
-      <h2 ref={ref || headingRef} css={Heading(theme)} className={classNames}>
+      <h2 ref={ref || headingRef} css={MainHeadingStyle(theme)} className={classNames}>
         <span>{children}</span>
       </h2>
     );
