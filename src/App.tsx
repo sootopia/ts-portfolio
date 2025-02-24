@@ -1,9 +1,12 @@
-function App() {
+import GlobalStyles from './styles/GlobalStyles';
+
+const App = () => {
   return (
     <>
-      <h1>Hello React</h1>
+      <GlobalStyles />
+      <h1 className="text-2xl text-red-700">Hello React!</h1>
     </>
   );
-}
+};
 
 export default App;
