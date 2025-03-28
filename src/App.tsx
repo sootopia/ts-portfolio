@@ -7,6 +7,7 @@ import GlobalStyles from './styles/GlobalStyles';
 import HeroSection from './components/sections/HeroSection';
 import AboutSection from './components/sections/AboutSection';
 import SkillSection from './components/sections/SkillSection';
+import WorksSection from './components/sections/WorksSection';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,6 +21,7 @@ const App = () => {
         <HeroSection />
         <AboutSection ref={aboutSectionRef} />
         <SkillSection />
+        <WorksSection />
       </ThemeProvider>
     </>
   );
