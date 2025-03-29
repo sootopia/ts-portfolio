@@ -72,7 +72,7 @@ const App = () => {
       <ThemeProvider theme={theme}>
         <GlobalStyles />
         <Header isSticky={isSticky} isLightHeader={isLightHeader} handleClick={scrollToSection} />
-        <HeroSection ref={sectionRefs.current.hero} />
+        <HeroSection ref={sectionRefs.current.hero} handleClick={scrollToSection} />
         <AboutSection ref={sectionRefs.current.about} />
         <SkillSection ref={sectionRefs.current.skills} />
         <WorksSection ref={sectionRefs.current.works} />
