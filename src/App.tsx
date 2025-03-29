@@ -9,6 +9,7 @@ import AboutSection from './components/sections/AboutSection';
 import SkillSection from './components/sections/SkillSection';
 import WorksSection from './components/sections/WorksSection';
 import ContactSection from './components/sections/ContactSection';
+import Footer from './components/layouts/Footer';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -24,6 +25,7 @@ const App = () => {
         <SkillSection />
         <WorksSection />
         <ContactSection />
+        <Footer />
       </ThemeProvider>
     </>
   );
