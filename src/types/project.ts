@@ -1,5 +1,5 @@
 export interface Project {
-  id: string;
+  id: number;
   title: string;
   summary: string;
   imageUrl: string;
@@ -8,5 +8,5 @@ export interface Project {
   link: string;
   client: string;
   period: string;
-  createdAt: Date;
+  created_at: string;
 }
