@@ -16,12 +16,7 @@ const baseStyles = css`
     max-width: 100%;
   }
   button {
-    background: none;
-    border: 0;
     cursor: pointer;
-  }
-  a {
-    text-decoration: none;
   }
 `;
 
