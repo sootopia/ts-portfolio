@@ -52,7 +52,7 @@ const LoadingSpinner = () => {
   );
 };
 
-const ContactSection = forwardRef<HTMLDivElement, unknown>((_, ref) => {
+const ContactSection = forwardRef<HTMLElement, unknown>((_, ref) => {
   const theme = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
