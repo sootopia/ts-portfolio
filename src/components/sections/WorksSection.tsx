@@ -6,17 +6,7 @@ import WorksCard from '../WorksCard';
 import SkeletonGrid from '../SkeletonGrid';
 import * as S from './WorksSection.styles';
 import { useCallback, useEffect, useState, forwardRef, useRef } from 'react';
-import { db } from '../../config/firebase';
-import {
-  collection,
-  getDocs,
-  query,
-  orderBy,
-  startAfter,
-  limit,
-  DocumentData,
-  QueryDocumentSnapshot,
-} from 'firebase/firestore';
+import { supabase } from '../../config/supabase';
 import { Project } from '../../types/project';
 
 type SortOption = 'participation_desc' | 'participation_asc' | 'created_desc' | 'created_asc';
@@ -50,12 +40,12 @@ const SORT_LABELS: Record<SortOption, string> = {
 
 const WorksSection = forwardRef<HTMLElement, unknown>((_, ref) => {
   const [data, setData] = useState<Project[]>([]);
-  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [currentSort, setCurrentSort] = useState<SortOption>(SORT_OPTIONS.LATEST);
+  const [page, setPage] = useState(1);
   const dropdownButtonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
@@ -66,43 +56,41 @@ const WorksSection = forwardRef<HTMLElement, unknown>((_, ref) => {
       setError(null);
 
       try {
-        let q;
+        let query = supabase
+          .from('works')
+          .select(
+            'id, title, summary, imageUrl, techStack, participationRate, link, client, period, created_at',
+          )
+          .limit(PAGE_SIZE);
 
         switch (sortOption) {
           case SORT_OPTIONS.PARTICIPATION_HIGH:
-            q = query(
-              collection(db, 'projects'),
-              orderBy('participationRate', 'desc'),
-              limit(PAGE_SIZE),
-            );
+            query = query.order('participationRate', { ascending: false });
             break;
           case SORT_OPTIONS.PARTICIPATION_LOW:
-            q = query(
-              collection(db, 'projects'),
-              orderBy('participationRate', 'asc'),
-              limit(PAGE_SIZE),
-            );
+            query = query.order('participationRate', { ascending: true });
             break;
           case SORT_OPTIONS.LATEST:
-            q = query(collection(db, 'projects'), orderBy('createdAt', 'desc'), limit(PAGE_SIZE));
+            query = query.order('created_at', { ascending: false });
             break;
           case SORT_OPTIONS.OLDEST:
-            q = query(collection(db, 'projects'), orderBy('createdAt', 'asc'), limit(PAGE_SIZE));
+            query = query.order('created_at', { ascending: true });
             break;
-          default:
-            q = query(collection(db, 'projects'), orderBy('createdAt', 'desc'), limit(PAGE_SIZE));
         }
 
-        const querySnapshot = await getDocs(q);
+        console.log('Executing query:', query); // 쿼리 객체 확인
+        const { data: projects, error } = await query;
+        console.log('Query response:', { data: projects, error }); // 응답 전체 확인
 
-        if (!querySnapshot.empty) {
-          const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
-          setLastDoc(lastVisible);
-          setData(querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Project)));
+        if (error) {
+          console.error('Supabase error:', error); // 에러 상세 확인
+          throw error;
         }
 
-        if (querySnapshot.size < PAGE_SIZE) {
-          setHasMore(false);
+        if (projects) {
+          setData(projects);
+          setHasMore(projects.length === PAGE_SIZE);
+          console.log('Projects loaded:', projects.length); // 로드된 데이터 수 확인
         }
       } catch (error) {
         console.error('데이터 로드 실패', error);
@@ -115,66 +103,44 @@ const WorksSection = forwardRef<HTMLElement, unknown>((_, ref) => {
   );
 
   const fetchMoreList = async (sortOption = currentSort) => {
-    if (!lastDoc) return;
+    if (!hasMore) return;
 
+    setIsLoading(true);
     try {
-      let q;
+      const nextPage = page + 1;
+      const from = (nextPage - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
+      let query = supabase
+        .from('works')
+        .select(
+          'id, title, summary, imageUrl, techStack, participationRate, link, client, period, created_at',
+        )
+        .range(from, to);
 
       switch (sortOption) {
         case SORT_OPTIONS.PARTICIPATION_HIGH:
-          q = query(
-            collection(db, 'projects'),
-            orderBy('participationRate', 'desc'),
-            startAfter(lastDoc),
-            limit(PAGE_SIZE),
-          );
+          query = query.order('participationRate', { ascending: false });
           break;
         case SORT_OPTIONS.PARTICIPATION_LOW:
-          q = query(
-            collection(db, 'projects'),
-            orderBy('participationRate', 'asc'),
-            startAfter(lastDoc),
-            limit(PAGE_SIZE),
-          );
+          query = query.order('participationRate', { ascending: true });
           break;
         case SORT_OPTIONS.LATEST:
-          q = query(
-            collection(db, 'projects'),
-            orderBy('createdAt', 'desc'),
-            startAfter(lastDoc),
-            limit(PAGE_SIZE),
-          );
+          query = query.order('created_at', { ascending: false });
           break;
         case SORT_OPTIONS.OLDEST:
-          q = query(
-            collection(db, 'projects'),
-            orderBy('createdAt', 'asc'),
-            startAfter(lastDoc),
-            limit(PAGE_SIZE),
-          );
+          query = query.order('created_at', { ascending: true });
           break;
-        default:
-          q = query(
-            collection(db, 'projects'),
-            orderBy('createdAt', 'desc'),
-            startAfter(lastDoc),
-            limit(PAGE_SIZE),
-          );
       }
 
-      const querySnapshot = await getDocs(q);
+      const { data: projects, error } = await query;
 
-      if (!querySnapshot.empty) {
-        const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
-        setLastDoc(lastVisible);
-        setData((prevData) => [
-          ...prevData,
-          ...querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Project)),
-        ]);
-      }
+      if (error) throw error;
 
-      if (querySnapshot.size < PAGE_SIZE) {
-        setHasMore(false);
+      if (projects) {
+        setData((prevData) => [...prevData, ...projects]);
+        setHasMore(projects.length === PAGE_SIZE);
+        setPage(nextPage);
       }
     } catch (error) {
       console.error('데이터 로드 실패', error);
@@ -198,7 +164,6 @@ const WorksSection = forwardRef<HTMLElement, unknown>((_, ref) => {
   const handleSortChange = (newSort: SortOption) => {
     setCurrentSort(newSort);
     setData([]);
-    setLastDoc(null);
     setHasMore(true);
     fetchList(newSort);
     setIsDropdownOpen(false);
