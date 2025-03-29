@@ -2,7 +2,7 @@
 import { JSX } from 'react';
 import * as S from './HeroSection.styles';
 import { useTheme } from '@emotion/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 
 const TypingText = (): JSX.Element => {
   const greeting: string = `안녕하세요. \n프론트엔드 개발자 박수현입니다 :)`;
@@ -38,11 +38,15 @@ const TypingText = (): JSX.Element => {
   return <h1 css={S.HeroTitle}>{displayText}</h1>;
 };
 
-const HeroSection = () => {
+const HeroSection = forwardRef<HTMLElement, unknown>((_, ref) => {
   const theme = useTheme();
 
   return (
-    <section css={S.HeroContainer} className="flex h-dvh justify-center items-center px-6">
+    <section
+      ref={ref}
+      css={S.HeroContainer}
+      className="flex h-dvh justify-center items-center px-6"
+    >
       <TypingText />
       <button css={S.Mouse(theme)}>
         <span className="mouse__wheel"></span>
@@ -50,6 +54,6 @@ const HeroSection = () => {
       <img css={S.MimoticonImage} src="/images/hero_mimoticon.png" alt="mimoticon" />
     </section>
   );
-};
+});
 
 export default HeroSection;
