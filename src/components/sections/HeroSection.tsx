@@ -27,7 +27,7 @@ const TypingText = (): JSX.Element => {
       timer = setTimeout(() => {
         setDisplayText([]);
         setTypingIndex(0);
-      });
+      }, 2000);
     }
 
     return () => {
