@@ -7,7 +7,7 @@ import MainHeader from '../header/MainHeader';
 import Modal from '../Modal';
 import CustomInput from '../CustomInput';
 import ErrorText from '../ErrorText';
-import axios from 'axios';
+import emailjs from '@emailjs/browser';
 import { alert } from '../../utils/alert';
 
 interface ContactModalProps {
@@ -31,7 +31,9 @@ interface FormErrors {
   agree: string;
 }
 
-const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 const ContactModal = ({ isOpen, onClose, title, children }: ContactModalProps) => {
   if (!isOpen) return null;
@@ -148,14 +150,23 @@ const ContactSection = forwardRef<HTMLElement, unknown>((_, ref) => {
 
     if (isFormValid) {
       try {
-        const response = await axios.post(`${API_DOMAIN}/api/v1/contact`, JSON.stringify(formData));
+        const response = await emailjs.send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_ID,
+          {
+            from_name: formData.name,
+            from_email: formData.email,
+            message: formData.message,
+          },
+          EMAILJS_PUBLIC_KEY,
+        );
 
-        if (response.data.result) {
+        if (response.status === 200) {
           await alert({ title: '접수 성공', message: '궁금한 점을 전달했어요.', width: 400 });
           closeModal();
           resetForm();
         } else {
-          await alert({ title: response.data.message, message: '', width: 400 });
+          await alert({ title: '전송 실패', message: '잠시 후 다시 시도해주세요.', width: 400 });
         }
       } catch (error) {
         console.error(error);

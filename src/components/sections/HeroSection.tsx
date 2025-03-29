@@ -4,6 +4,10 @@ import * as S from './HeroSection.styles';
 import { useTheme } from '@emotion/react';
 import { useState, useEffect, forwardRef } from 'react';
 
+interface HeroSectionProps {
+  handleClick: (section: string) => void;
+}
+
 const TypingText = (): JSX.Element => {
   const greeting: string = `안녕하세요. \n프론트엔드 개발자 박수현입니다 :)`;
   const [displayText, setDisplayText] = useState<Array<string | JSX.Element>>([]);
@@ -38,7 +42,7 @@ const TypingText = (): JSX.Element => {
   return <h1 css={S.HeroTitle}>{displayText}</h1>;
 };
 
-const HeroSection = forwardRef<HTMLElement, unknown>((_, ref) => {
+const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(({ handleClick }, ref) => {
   const theme = useTheme();
 
   return (
@@ -48,7 +52,7 @@ const HeroSection = forwardRef<HTMLElement, unknown>((_, ref) => {
       className="flex h-dvh justify-center items-center px-6"
     >
       <TypingText />
-      <button css={S.Mouse(theme)}>
+      <button css={S.Mouse(theme)} onClick={() => handleClick('about')}>
         <span className="mouse__wheel"></span>
       </button>
       <img css={S.MimoticonImage} src="/images/hero_mimoticon.png" alt="mimoticon" />
