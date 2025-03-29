@@ -217,7 +217,7 @@ const WorksSection = forwardRef<HTMLElement, unknown>((_, ref) => {
 
   return (
     <section css={S.WorksContainer(theme)} ref={ref} className="bg-slate-50">
-      <div className="container px-5">
+      <div className="container">
         <div css={S.HeaderContainer} className="mb-8 md:mb-16">
           <div>
             <SubHeader>Projects</SubHeader>
