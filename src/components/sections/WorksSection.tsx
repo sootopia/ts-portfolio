@@ -78,19 +78,16 @@ const WorksSection = forwardRef<HTMLElement, unknown>((_, ref) => {
             break;
         }
 
-        console.log('Executing query:', query); // 쿼리 객체 확인
         const { data: projects, error } = await query;
-        console.log('Query response:', { data: projects, error }); // 응답 전체 확인
 
         if (error) {
-          console.error('Supabase error:', error); // 에러 상세 확인
+          console.error('Supabase error:', error);
           throw error;
         }
 
         if (projects) {
           setData(projects);
           setHasMore(projects.length === PAGE_SIZE);
-          console.log('Projects loaded:', projects.length); // 로드된 데이터 수 확인
         }
       } catch (error) {
         console.error('데이터 로드 실패', error);
